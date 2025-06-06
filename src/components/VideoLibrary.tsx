@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Library, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Library, Clock, CheckCircle, XCircle, Check } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import VideoPlayer from './VideoPlayer';
@@ -8,9 +8,17 @@ import { GeneratedVideo } from '../pages/Index';
 
 interface VideoLibraryProps {
   videos: GeneratedVideo[];
+  selectedVideoIds?: string[];
+  onVideoSelect?: (videoId: string) => void;
+  isSelectionMode?: boolean;
 }
 
-const VideoLibrary: React.FC<VideoLibraryProps> = ({ videos }) => {
+const VideoLibrary: React.FC<VideoLibraryProps> = ({ 
+  videos, 
+  selectedVideoIds = [], 
+  onVideoSelect,
+  isSelectionMode = false 
+}) => {
   const getStatusIcon = (status: GeneratedVideo['status']) => {
     switch (status) {
       case 'processing':
@@ -33,6 +41,12 @@ const VideoLibrary: React.FC<VideoLibraryProps> = ({ videos }) => {
     }
   };
 
+  const handleVideoClick = (video: GeneratedVideo) => {
+    if (isSelectionMode && onVideoSelect && video.status === 'completed') {
+      onVideoSelect(video.id);
+    }
+  };
+
   return (
     <Card className="p-6 animate-fade-in">
       <div className="flex items-center gap-2 mb-6">
@@ -41,17 +55,49 @@ const VideoLibrary: React.FC<VideoLibraryProps> = ({ videos }) => {
         <Badge variant="outline" className="ml-2">
           {videos.length} video{videos.length !== 1 ? 's' : ''}
         </Badge>
+        {isSelectionMode && (
+          <Badge variant="secondary" className="ml-2">
+            Selection Mode
+          </Badge>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {videos.map((video) => (
           <div key={video.id} className="space-y-3">
             {video.status === 'completed' && video.videoUrl ? (
-              <VideoPlayer
-                videoUrl={video.videoUrl}
-                title={`Video ${video.id}`}
-                prompt={video.prompt}
-              />
+              <div 
+                className={`relative ${isSelectionMode ? 'cursor-pointer' : ''}`}
+                onClick={() => handleVideoClick(video)}
+              >
+                <VideoPlayer
+                  videoUrl={video.videoUrl}
+                  title={`Video ${video.id}`}
+                  prompt={video.prompt}
+                />
+                
+                {/* Selection Overlay for completed videos in selection mode */}
+                {isSelectionMode && (
+                  <>
+                    <div className={`absolute inset-0 transition-all duration-200 ${
+                      selectedVideoIds.includes(video.id)
+                        ? 'bg-primary/20 ring-2 ring-primary'
+                        : 'bg-black/0 hover:bg-black/10'
+                    } rounded-lg`} />
+                    
+                    {selectedVideoIds.includes(video.id) && (
+                      <>
+                        <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-2">
+                          <Check className="h-4 w-4" />
+                        </div>
+                        <div className="absolute top-2 left-2 bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-sm font-medium">
+                          {selectedVideoIds.indexOf(video.id) + 1}
+                        </div>
+                      </>
+                    )}
+                  </>
+                )}
+              </div>
             ) : (
               <Card className="overflow-hidden">
                 <div className="relative">

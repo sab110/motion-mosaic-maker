@@ -20,7 +20,7 @@ export interface GeneratedVideo {
 }
 
 // API configuration - update these URLs to match your FastAPI backend
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const API_BASE_URL = 'http://localhost:8000';
 
 const Index = () => {
   const [videos, setVideos] = useState<GeneratedVideo[]>([]);
@@ -28,6 +28,7 @@ const Index = () => {
   const [isCombining, setIsCombining] = useState(false);
   const [combinedVideoUrl, setCombinedVideoUrl] = useState<string | null>(null);
   const [selectedVideoIds, setSelectedVideoIds] = useState<string[]>([]);
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
 
   const handleImageUpload = useCallback(async (file: File, prompt: string) => {
     const newVideo: GeneratedVideo = {
@@ -82,6 +83,19 @@ const Index = () => {
     }
   }, []);
 
+  const handleVideoSelect = useCallback((videoId: string) => {
+    setSelectedVideoIds(prev => {
+      if (prev.includes(videoId)) {
+        return prev.filter(id => id !== videoId);
+      } else if (prev.length < 5) {
+        return [...prev, videoId];
+      } else {
+        toast.error('You can select maximum 5 videos');
+        return prev;
+      }
+    });
+  }, []);
+
   const handleCombineVideos = useCallback(async (selectedIds: string[]) => {
     if (selectedIds.length < 2 || selectedIds.length > 5) {
       toast.error('Please select 2-5 videos to combine');
@@ -89,7 +103,6 @@ const Index = () => {
     }
 
     setIsCombining(true);
-    setSelectedVideoIds(selectedIds);
 
     try {
       const selectedVideos = videos.filter(v => selectedIds.includes(v.id) && v.status === 'completed');
@@ -123,15 +136,25 @@ const Index = () => {
         setCombinedVideoUrl('https://www.w3schools.com/html/mov_bbb.mp4');
         setIsCombining(false);
         setSelectedVideoIds([]);
+        setIsSelectionMode(false);
         toast.success(`${selectedIds.length} videos combined successfully!`);
       }, 3000);
     } catch (error) {
       console.error('Error combining videos:', error);
       setIsCombining(false);
-      setSelectedVideoIds([]);
       toast.error('Failed to combine videos');
     }
   }, [videos]);
+
+  const handleStartSelection = () => {
+    setIsSelectionMode(true);
+    setSelectedVideoIds([]);
+  };
+
+  const handleCancelSelection = () => {
+    setIsSelectionMode(false);
+    setSelectedVideoIds([]);
+  };
 
   const completedVideos = videos.filter(v => v.status === 'completed');
 
@@ -178,19 +201,75 @@ const Index = () => {
         </div>
 
         {/* Video Combination Section */}
-        {completedVideos.length > 0 && (
-          <VideoCombiner
-            videos={completedVideos}
-            onCombine={handleCombineVideos}
-            isCombining={isCombining}
-            combinedVideoUrl={combinedVideoUrl}
-            selectedVideoIds={selectedVideoIds}
-          />
+        {completedVideos.length > 1 && !isSelectionMode && (
+          <Card className="p-6 mb-8 animate-fade-in">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Combine className="h-5 w-5 text-primary" />
+                <h2 className="text-2xl font-semibold">Combine Videos</h2>
+              </div>
+              <Button onClick={handleStartSelection} className="hover-scale">
+                Select Videos to Combine
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {/* Selection Mode Header */}
+        {isSelectionMode && (
+          <Card className="p-6 mb-8 animate-fade-in">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Combine className="h-5 w-5 text-primary" />
+                <h2 className="text-2xl font-semibold">Select Videos to Combine</h2>
+                <span className="text-sm text-muted-foreground">
+                  ({selectedVideoIds.length}/5 selected)
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  onClick={handleCancelSelection}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={() => handleCombineVideos(selectedVideoIds)}
+                  disabled={selectedVideoIds.length < 2 || isCombining}
+                  className="hover-scale"
+                >
+                  {isCombining ? 'Combining...' : `Combine ${selectedVideoIds.length} Videos`}
+                </Button>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* Combined Video Display */}
+        {combinedVideoUrl && (
+          <Card className="p-6 mb-8 animate-fade-in">
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Combine className="h-5 w-5 text-green-500" />
+              Combined Video Result
+            </h3>
+            <div className="max-w-2xl">
+              <VideoPlayer 
+                videoUrl={combinedVideoUrl} 
+                title="Combined Video"
+                prompt="Combined from selected videos"
+              />
+            </div>
+          </Card>
         )}
 
         {/* Video Library */}
         {videos.length > 0 && (
-          <VideoLibrary videos={videos} />
+          <VideoLibrary 
+            videos={videos}
+            selectedVideoIds={selectedVideoIds}
+            onVideoSelect={handleVideoSelect}
+            isSelectionMode={isSelectionMode}
+          />
         )}
       </div>
     </div>
