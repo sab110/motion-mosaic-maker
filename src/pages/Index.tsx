@@ -5,6 +5,7 @@ import ImageUpload from '../components/ImageUpload';
 import VideoPlayer from '../components/VideoPlayer';
 import ProcessingStatus from '../components/ProcessingStatus';
 import VideoLibrary from '../components/VideoLibrary';
+import VideoCombiner from '../components/VideoCombiner';
 import { Video, Combine, Sparkles, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -18,11 +19,15 @@ export interface GeneratedVideo {
   createdAt: Date;
 }
 
+// API configuration - update these URLs to match your FastAPI backend
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+
 const Index = () => {
   const [videos, setVideos] = useState<GeneratedVideo[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isCombining, setIsCombining] = useState(false);
   const [combinedVideoUrl, setCombinedVideoUrl] = useState<string | null>(null);
+  const [selectedVideoIds, setSelectedVideoIds] = useState<string[]>([]);
 
   const handleImageUpload = useCallback(async (file: File, prompt: string) => {
     const newVideo: GeneratedVideo = {
@@ -37,10 +42,24 @@ const Index = () => {
     setIsProcessing(true);
 
     try {
-      // Simulate API call to FastAPI backend
+      // FastAPI integration - replace with actual API call
       const formData = new FormData();
       formData.append('image', file);
       formData.append('prompt', prompt);
+
+      // Uncomment and modify when connecting to FastAPI backend:
+      /*
+      const response = await fetch(`${API_BASE_URL}/generate-video`, {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate video');
+      }
+      
+      const result = await response.json();
+      */
 
       // For demo purposes, we'll simulate the API call
       setTimeout(() => {
@@ -63,26 +82,53 @@ const Index = () => {
     }
   }, []);
 
-  const handleCombineVideos = useCallback(async () => {
-    const completedVideos = videos.filter(v => v.status === 'completed');
-    
-    if (completedVideos.length < 2) {
-      toast.error('You need at least 2 completed videos to combine');
+  const handleCombineVideos = useCallback(async (selectedIds: string[]) => {
+    if (selectedIds.length < 2 || selectedIds.length > 5) {
+      toast.error('Please select 2-5 videos to combine');
       return;
     }
 
     setIsCombining(true);
+    setSelectedVideoIds(selectedIds);
 
     try {
-      // Simulate API call to combine videos
+      const selectedVideos = videos.filter(v => selectedIds.includes(v.id) && v.status === 'completed');
+      
+      // FastAPI integration - replace with actual API call
+      const videoUrls = selectedVideos.map(v => v.videoUrl).filter(Boolean);
+      
+      // Uncomment and modify when connecting to FastAPI backend:
+      /*
+      const response = await fetch(`${API_BASE_URL}/combine-videos`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          video_urls: videoUrls,
+          video_ids: selectedIds
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to combine videos');
+      }
+      
+      const result = await response.json();
+      setCombinedVideoUrl(result.combined_video_url);
+      */
+
+      // Simulate API call for demo
       setTimeout(() => {
         setCombinedVideoUrl('https://www.w3schools.com/html/mov_bbb.mp4');
         setIsCombining(false);
-        toast.success('Videos combined successfully!');
+        setSelectedVideoIds([]);
+        toast.success(`${selectedIds.length} videos combined successfully!`);
       }, 3000);
     } catch (error) {
       console.error('Error combining videos:', error);
       setIsCombining(false);
+      setSelectedVideoIds([]);
       toast.error('Failed to combine videos');
     }
   }, [videos]);
@@ -133,28 +179,13 @@ const Index = () => {
 
         {/* Video Combination Section */}
         {completedVideos.length > 0 && (
-          <Card className="p-6 mb-8 animate-fade-in">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
-                <Combine className="h-5 w-5 text-primary" />
-                <h2 className="text-2xl font-semibold">Combine Videos</h2>
-              </div>
-              <Button 
-                onClick={handleCombineVideos}
-                disabled={isCombining || completedVideos.length < 2}
-                className="hover-scale"
-              >
-                {isCombining ? 'Combining...' : `Combine ${completedVideos.length} Videos`}
-              </Button>
-            </div>
-            
-            {combinedVideoUrl && (
-              <div className="mb-4">
-                <h3 className="text-lg font-medium mb-3">Combined Video</h3>
-                <VideoPlayer videoUrl={combinedVideoUrl} title="Combined Video" />
-              </div>
-            )}
-          </Card>
+          <VideoCombiner
+            videos={completedVideos}
+            onCombine={handleCombineVideos}
+            isCombining={isCombining}
+            combinedVideoUrl={combinedVideoUrl}
+            selectedVideoIds={selectedVideoIds}
+          />
         )}
 
         {/* Video Library */}
