@@ -117,7 +117,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onUpload, disabled }) => {
                 <X className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
               <div className="mt-3 sm:mt-4 text-xs sm:text-sm text-muted-foreground">
-                {selectedFile?.name} ({(selectedFile?.size || 0 / 1024 / 1024).toFixed(2)} MB)
+                {selectedFile?.name}
               </div>
             </div>
           ) : (

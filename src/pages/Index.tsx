@@ -5,7 +5,7 @@ import VideoPlayer from '../components/VideoPlayer';
 import ProcessingStatus from '../components/ProcessingStatus';
 import VideoLibrary from '../components/VideoLibrary';
 import VideoCombiner from '../components/VideoCombiner';
-import { Video, Combine, Sparkles, Wand2 } from 'lucide-react';
+import { Video, Combine, Sparkles, Wand2, Stars, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
@@ -226,60 +226,99 @@ const Index = () => {
   const completedVideos = videos.filter(v => v.status === 'completed');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-purple-50 to-pink-50 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/3 left-1/3 w-96 h-96 bg-gradient-to-r from-orange-400/20 to-yellow-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }}></div>
+        <div className="absolute bottom-1/3 right-1/3 w-72 h-72 bg-gradient-to-r from-emerald-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '6s' }}></div>
+      </div>
+
       {/* Header */}
-      <div className="container mx-auto px-4 py-6 sm:py-8">
-        <div className="text-center mb-8 sm:mb-12 animate-fade-in">
-          <div className="flex items-center justify-center gap-2 sm:gap-3 mb-4">
-            <div className="p-2 sm:p-3 bg-primary/10 rounded-full">
-              <Wand2 className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+      <div className="container mx-auto px-4 py-8 sm:py-12 relative z-10">
+        <div className="text-center mb-12 sm:mb-16 animate-fade-in">
+          <div className="flex items-center justify-center gap-3 sm:gap-4 mb-6">
+            <div className="relative p-3 sm:p-4 bg-gradient-to-br from-cyan-500/20 to-purple-600/20 backdrop-blur-sm rounded-3xl border border-cyan-200/50 shadow-2xl">
+              <Wand2 className="h-8 w-8 sm:h-10 sm:w-10 text-purple-600 drop-shadow-lg" />
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full animate-ping"></div>
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            <div className="text-left">
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-black bg-gradient-to-r from-cyan-600 via-purple-600 to-pink-600 bg-clip-text text-transparent drop-shadow-lg">
+                Real Estate 
+              </h1>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-light bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
               AI Video Generator
-            </h1>
+              </h2>
+            </div>
           </div>
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
-            Transform your images into stunning videos with AI. Upload an image, add a prompt, and watch the magic happen.
+          <p className="text-lg sm:text-xl text-gray-700 max-w-3xl mx-auto px-4 leading-relaxed">
+            Transform your images into stunning videos with cutting-edge AI technology. 
+            <br className="hidden sm:block" />
+            Upload, create, and combine with professional quality results.
           </p>
+          <div className="flex items-center justify-center gap-2 mt-4">
+            <Stars className="h-4 w-4 text-yellow-500" />
+            <span className="text-sm text-gray-600 font-medium">Powered by RunwayML Gen-3 Alpha Turbo</span>
+            <Stars className="h-4 w-4 text-yellow-500" />
+          </div>
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-8 sm:mb-12">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 sm:gap-10 mb-10 sm:mb-16">
           {/* Upload Section */}
-          <Card className="p-4 sm:p-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-            <div className="flex items-center gap-2 mb-4 sm:mb-6">
-              <Video className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-              <h2 className="text-xl sm:text-2xl font-semibold">Create Video</h2>
+          <Card className="bg-white/70 backdrop-blur-xl border-cyan-200/50 shadow-2xl hover:shadow-cyan-500/20 transition-all duration-500 animate-fade-in group hover:bg-white/80" style={{ animationDelay: '0.1s' }}>
+            <div className="p-6 sm:p-8">
+              <div className="flex items-center gap-3 mb-6 sm:mb-8">
+                <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 rounded-xl">
+                  <Video className="h-5 w-5 sm:h-6 sm:w-6 text-cyan-600" />
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 group-hover:text-cyan-700 transition-colors">
+                  Create Video
+                </h2>
+              </div>
+              <ImageUpload onUpload={handleImageUpload} disabled={isProcessing} />
             </div>
-            <ImageUpload onUpload={handleImageUpload} disabled={isProcessing} />
           </Card>
 
           {/* Processing Status */}
-          <Card className="p-4 sm:p-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            <div className="flex items-center gap-2 mb-4 sm:mb-6">
-              <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-              <h2 className="text-xl sm:text-2xl font-semibold">Processing Status</h2>
+          <Card className="bg-white/70 backdrop-blur-xl border-purple-200/50 shadow-2xl hover:shadow-purple-500/20 transition-all duration-500 animate-fade-in group hover:bg-white/80" style={{ animationDelay: '0.2s' }}>
+            <div className="p-6 sm:p-8">
+              <div className="flex items-center gap-3 mb-6 sm:mb-8">
+                <div className="p-2 bg-gradient-to-br from-purple-500/20 to-pink-600/20 rounded-xl">
+                  <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600" />
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 group-hover:text-purple-700 transition-colors">
+                  Processing Status
+                </h2>
+              </div>
+              <ProcessingStatus 
+                isProcessing={isProcessing}
+                currentVideo={videos.find(v => v.status === 'processing')}
+              />
             </div>
-            <ProcessingStatus 
-              isProcessing={isProcessing}
-              currentVideo={videos.find(v => v.status === 'processing')}
-            />
           </Card>
         </div>
 
         {/* Video Combination Section */}
         {completedVideos.length > 1 && !isSelectionMode && (
-          <Card className="p-4 sm:p-6 mb-6 sm:mb-8 animate-fade-in">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
-                <Combine className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                <h2 className="text-xl sm:text-2xl font-semibold">Combine Videos</h2>
+          <Card className="bg-gradient-to-r from-emerald-100/80 to-teal-100/80 backdrop-blur-xl border-emerald-300/50 shadow-2xl hover:shadow-emerald-500/30 transition-all duration-500 p-6 sm:p-8 mb-8 sm:mb-12 animate-fade-in">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-gradient-to-br from-emerald-500/30 to-teal-600/30 rounded-xl">
+                  <Combine className="h-6 w-6 sm:h-7 sm:w-7 text-emerald-700" />
+                </div>
+                <div>
+                  <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-1">Combine Videos</h2>
+                  <p className="text-emerald-700 text-sm font-medium">Create seamless video sequences</p>
+                </div>
               </div>
               <Button 
                 onClick={handleStartSelection} 
-                className="w-full sm:w-auto hover:shadow-md transition-shadow"
-                size="sm"
+                className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-emerald-500/40 transition-all duration-300 transform hover:scale-105"
+                size="lg"
               >
+                <Play className="h-5 w-5 mr-2" />
                 Select Videos to Combine
               </Button>
             </div>
@@ -288,33 +327,47 @@ const Index = () => {
 
         {/* Selection Mode Header */}
         {isSelectionMode && (
-          <Card className="p-4 sm:p-6 mb-6 sm:mb-8 animate-fade-in">
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                <div className="flex items-center gap-2">
-                  <Combine className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                  <h2 className="text-xl sm:text-2xl font-semibold">Select Videos to Combine</h2>
+          <Card className="bg-gradient-to-r from-orange-100/80 to-yellow-100/80 backdrop-blur-xl border-orange-300/50 shadow-2xl p-6 sm:p-8 mb-8 sm:mb-12 animate-fade-in">
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-gradient-to-br from-orange-500/30 to-yellow-600/30 rounded-xl">
+                    <Combine className="h-6 w-6 sm:h-7 sm:w-7 text-orange-700" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">Select Videos to Combine</h2>
+                    <span className="text-orange-700 text-sm font-medium">
+                      {selectedVideoIds.length} of 5 videos selected
+                    </span>
+                  </div>
                 </div>
-                <span className="text-sm text-muted-foreground">
-                  ({selectedVideoIds.length}/5 selected)
-                </span>
               </div>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-2">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
                   variant="outline" 
                   onClick={handleCancelSelection}
-                  className="w-full sm:w-auto"
-                  size="sm"
+                  className="bg-white/80 border-orange-300 text-orange-700 hover:bg-orange-50 backdrop-blur-sm transition-all duration-300"
+                  size="lg"
                 >
-                  Cancel
+                  Cancel Selection
                 </Button>
                 <Button 
                   onClick={() => handleCombineVideos(selectedVideoIds)}
                   disabled={selectedVideoIds.length < 2 || isCombining}
-                  className="w-full sm:w-auto hover:shadow-md transition-shadow"
-                  size="sm"
+                  className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white font-semibold px-8 shadow-lg hover:shadow-orange-500/40 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  size="lg"
                 >
-                  {isCombining ? 'Combining...' : `Combine ${selectedVideoIds.length} Videos`}
+                  {isCombining ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                      Combining...
+                    </>
+                  ) : (
+                    <>
+                      <Combine className="h-5 w-5 mr-2" />
+                      Combine {selectedVideoIds.length} Videos
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
@@ -323,12 +376,17 @@ const Index = () => {
 
         {/* Combined Video Display */}
         {combinedVideoUrl && (
-          <Card className="p-4 sm:p-6 mb-6 sm:mb-8 animate-fade-in">
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Combine className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
-              Combined Video Result
-            </h3>
-            <div className="max-w-full sm:max-w-2xl">
+          <Card className="bg-gradient-to-r from-green-100/80 to-emerald-100/80 backdrop-blur-xl border-green-300/50 shadow-2xl p-6 sm:p-8 mb-8 sm:mb-12 animate-fade-in">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="p-3 bg-gradient-to-br from-green-500/30 to-emerald-600/30 rounded-xl">
+                <Combine className="h-6 w-6 sm:h-7 sm:w-7 text-green-700" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-gray-800 mb-1">Combined Video Result</h3>
+                <p className="text-green-700 text-sm font-medium">Your videos have been seamlessly combined</p>
+              </div>
+            </div>
+            <div className="max-w-4xl mx-auto">
               <VideoPlayer 
                 videoUrl={combinedVideoUrl} 
                 title="Combined Video"
